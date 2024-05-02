@@ -1,0 +1,33 @@
+name: Salesforce Deployment
+
+on:
+  push:
+    branches:
+      - main  # Specify the branch you want to trigger deployment on (e.g., main, master)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Use the latest version of Ubuntu as the runner for this job
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Action to checkout your repository code
+
+      - name: Set up Salesforce CLI
+        uses: actions/setup-node@v2  # Action to set up Node.js
+        with:
+          node-version: '14'  # Specify the Node.js version
+
+      - name: Install Salesforce CLI
+        run: |
+          npm install -g sfdx-cli  # Install Salesforce CLI globally
+          sfdx update  # Update Salesforce CLI to the latest version
+
+      - name: Authenticate with Salesforce
+        run: |
+          sfdx auth:jwt:grant --clientid ${{ secrets.SF_CLIENT_ID }} --jwtkeyfile ${{ secrets.JWT_KEY_FILE }} --username ${{ secrets.SF_USERNAME }} --setdefaultdevhubusername -a MyDevHub  # Auth using JWT flow
+          sfdx force:org:list  # Display authorized orgs to verify authentication
+
+      - name: Deploy to Salesforce Org
+        run: |
+          sfdx force:source:deploy --sourcepath force-app/main/default --wait 10 --targetusername ${{ secrets.SF_USERNAME }}  # Deploy metadata to Salesforce org
