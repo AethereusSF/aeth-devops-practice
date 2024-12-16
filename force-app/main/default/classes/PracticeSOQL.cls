@@ -20,4 +20,9 @@ public with sharing class PracticeSOQL {
         Contact c = [SELECT Id, FirstName, LastName, Email FROM Contact WHERE Email = :email LIMIT 1];  
         return c;    
     } 
+
+    public static Contact queryContactByName(String name) { 
+        Contact c = [SELECT Id, FirstName, LastName, Email FROM Contact WHERE LastName = :name LIMIT 1];  
+        return c;    
+    } 
 }
